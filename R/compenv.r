@@ -1,69 +1,45 @@
 compenv = function (..., hash=FALSE)
-{	e = structure (extend (as.component (new.env (hash) ), "compenv"), hash=hash)
-	objs = list (...)
-	n = length (objs)
-	if (n > 0)
-	{	strs = names (objs)
-		if (is.null (strs) ) stop ("compenv args must be named")
-		else for (i in 1:n) assign (strs [i], objs [[i]], envir=e)
-	}
-	e
+{	objs = if (is.cleancall () ) collection (..., call=sys.call () )
+	else collection (..., resolve=FALSE)
+	if (ifst (objs) ) list.to.compenv (objs, hash)
+	else structure (extend (as.component (new.env (hash) ), "compenv"), hash=hash)
 }
 
+is.compenv = function (e) inherits (e, "compenv")
+
 as.compenv = function (obj)
-{	if (inherits (obj, "compenv") ) obj
+{	if (is.compenv (obj) ) obj
 	else if (inherits (obj, "environment") ) extend (as.component (obj), "compenv")
 	else if (inherits (obj, "list") ) list.to.compenv (obj)
 	else stop ("as.compenv not applicable")
 }
 
-is.compenv = function (e) inherits (e, "compenv")
+"==.compenv" = function (e1, e2) (format (e1) == format (e2) )
+is.hashed = function (e) attr (e, "hash")
 
-#unhashed environments ****tend**** to be in reverse order
-oospaslist.compenv = function (e, ...)
-{	f = compenv.to.list (e)
-	if (!is.hashed (e) ) f = rev (f)
-	f
+print.compenv = function (e, ...)
+{	obj = as.list (e)
+	if (if0 (obj) ) cat ("empty compenv\n")
+	else for (i in itobj (obj) )
+	{	cat ("$", names (obj) [i], "\n", sep="")
+		if (is.compenv (obj [[i]]) ) cat (format (obj [[i]]), "\n" )
+		else print (obj [[i]])
+	}
 }
-oospasdataframe.compenv = function (e, ...) as.data.frame (oospaslist.compenv (e) )
+
+list.to.compenv = function (obj, hash=FALSE)
+{	names = names (obj)
+	if (is.null (names) || any (names == "") )
+		stop ("compenv args must be named (or nameable)")
+	e = compenv (hash=hash)
+	for (i in itobj (obj) ) assign (names [i], obj [[i]], envir=e)
+	e
+}
 
 clone.compenv = function (e, ...)
 	structure (as.compenv (compenv.clone (e, ...) ), hash=is.hashed (e) )
 
 clone.environment = function (e, ...) compenv.clone (e, ...)
-
-list.to.compenv = function (obj, hash=FALSE)
-{	e = compenv (hash=hash)
-	n = length (obj)
-	if (n > 0)
-	{	strs = names (obj)
-		for (i in 1:n) assign (strs [i], obj [[i]], envir=e)
-	}
-	e
-}
-
-compenv.to.list = function (e, flags=pointer (list (e) ) )
-{	obj = list ()
-	n = length (e)
-	if (n > 0)
-	{	strs = ls (e)
-		for (i in 1:n)
-		{	x = get (strs [i], envir=e)
-			if (inherits (x, "environment") )
-			{	flagged = FALSE
-				for (flag in flags () ) if (equals (x, flag) ) flagged = TRUE
-				if (flagged) x = paste ("pruned", strs [i], sep=":")
-				else
-				{	flags [[length (flags) + 1]] = x
-					x = compenv.to.list (x, flags)
-				}
-			}
-			obj [[i]] = x
-			names (obj) [i] = strs [i]
-		}
-	}
-	obj
-}
 
 compenv.clone = function (e, flags=pointer (list () ) )
 {	f = new.env ()
@@ -74,7 +50,7 @@ compenv.clone = function (e, flags=pointer (list () ) )
 		{	x = get (str, envir=e)
 			if (inherits (x, "environment") )
 			{	flagged = NULL
-				for (flag in flags () ) if (equals (x, flag [[1]]) ) flagged = flag [[2]]
+				for (flag in flags () ) if (`==.compenv` (x, flag [[1]]) ) flagged = flag [[2]]
 				if (is.null (flagged) ) assign (str, clone (x, flags), envir=f)
 				else assign (str, flagged, envir=f)
 			}
@@ -83,8 +59,4 @@ compenv.clone = function (e, flags=pointer (list () ) )
 	}
 	f
 }
-
-equals.compenv = function (e1, e2, ...) (format (e1) == format (e2) )
-oospprint.compenv = function (e, ...) print (oospaslist (e) )
-is.hashed = function (e) attr (e, "hash")
 

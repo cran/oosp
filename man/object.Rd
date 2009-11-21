@@ -1,13 +1,13 @@
 \name{object}
-\alias{as.object}
 \alias{is.object}
-\title{Object Oriented Statistical Programming Objects}
-\description{Creates an object, from a seed object, or test to see if an object is an object.}
+\alias{as.object}
+\title{object super class}
+\description{Test or create an object. At present, this class mainly exists for semantic reasons.}
 \usage{
-as.object (obj)
 is.object (obj)
+as.object (obj)
 }
 \arguments{
-\item{obj}{Seed object.}
+\item{obj}{}
 }
 

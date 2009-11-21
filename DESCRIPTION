@@ -1,15 +1,12 @@
 Package: oosp
 Title: Object Oriented Statistical Programming
-Version: 0.1.0
-Date: 2009-08-19
-Author: Charlotte Maia
+Version: 0.2.2
+Date: 2009-11-21
+Author: CHARLOTTE MAIA
 Maintainer: Charlotte Maia <maiagx@gmail.com>
-Description: An R package designed to support object oriented
-        statistical programming, especially by extending S3
-        capabilities, providing pointer and component objects, and
-        providing basic support for symbolic-numeric statistical
-        programming.
+Description: A platform for, and collection of tools for, object
+        oriented statistical programming in R.
 License: GPL (>= 2)
-Packaged: 2009-08-19 05:13:45 UTC; maia
+Packaged: 2009-11-21 02:42:26 UTC; maia
 Repository: CRAN
-Date/Publication: 2009-08-20 13:48:19
+Date/Publication: 2009-11-22 16:20:59

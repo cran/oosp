@@ -1,24 +1,14 @@
-#insufficient
-#one line functions only
 mutate.function = function (f, str, ...)
-{	body (f) = parse (text=str)
-	f
-}
-
-makepoly = function (k)
-{	str = NULL
-	n = length (k)
-	if (n == 0) str = "0"
-	else
-	{	k = rev (k)
-		str = as.character (k [1])
-		for (i in iter (n, 2) )
-		{	v = abs (k [i])
-			s = if (k [i] < 0) "-" else "+"
-			l = r = ""; if (i > 2) {l = "("; r = ")"}
-			str = paste (l, str, r, "*x", s, v, sep="")
-		}
+{	b = NULL
+	n = length (str)
+	if (n == 1) b = parse (text=str)
+	else if (n > 1)
+	{	b = list ()
+		b [[1]] = as.name ("{")
+		for (i in 1:n) b [[i + 1]] = parse (text=str [i]) [[1]]
+		b = as.call (b)
 	}
-	mutate (function (x) NULL, str)
+	body (f) = b
+	f
 }
 

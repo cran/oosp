@@ -1,7 +1,7 @@
 \name{extend}
 \alias{extend}
-\title{Extend an Object}
-\description{Extend an object, by extending it's class attribute.}
+\title{extend an object}
+\description{Extend an object, by extending it's class attribute. Note this returns the extended object.}
 \usage{
 extend (obj, cl)
 }

@@ -1,27 +1,27 @@
 \name{newgenerics}
-\alias{aslatex}
-\alias{equals}
-\alias{clone}
-\alias{mutate}
+\alias{map}
 \alias{fit}
 \alias{evaluate}
-\alias{gf}
-\alias{map}
 \alias{reset}
-\title{New Generics}
-\description{New generic functions.}
+\alias{clone}
+\alias{mutate}
+\alias{gf}
+\alias{as.r}
+\alias{as.latex}
+\title{new generics}
+\description{New standard generic functions.}
 \usage{
-aslatex (\dots)
-equals (\dots)
-clone (\dots)
-mutate (\dots)
+map (\dots)
 fit (\dots)
 evaluate (\dots)
-gf (\dots)
-map (\dots)
 reset (\dots)
+clone (\dots)
+mutate (\dots)
+gf (\dots)
+as.r (\dots)
+as.latex (\dots)
 }
 \arguments{
-\item{\dots}{}
+\item{\dots}{The arguments.}
 }
 

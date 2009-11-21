@@ -1,13 +1,13 @@
 \name{component}
-\alias{as.component}
 \alias{is.component}
-\title{Component Objects}
-\description{Creates a component, from a seed object, or test to see if an object is a component.}
+\alias{as.component}
+\title{component super class}
+\description{Test or create a component. At present, this class mainly exists for semantic reasons.}
 \usage{
-as.component (obj)
 is.component (obj)
+as.component (obj)
 }
 \arguments{
-\item{obj}{Seed object.}
+\item{obj}{}
 }
 
