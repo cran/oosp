@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{oosp2_Object_Functional_Programming}
+%\VignetteIndexEntry{oosp3_Object_Functional_Programming}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.2.0}
+\lfoot{oosp 0.2.3}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -14,7 +14,7 @@ par(mar=c(5.1, 4.1, 1.1, 2.1))))
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.2.2)}{Object-Functional Programming\\[0.125cm] (Rough Draft)}
+\mtitleb {Object Oriented Statistical Programming (oosp 0.2.3)}{Object-Functional Programming\\[0.125cm] (Rough Draft)}
 
 \begin {abstract}
 This vignette looks at combining the paradigms of object oriented programming and functional programming, with an emphasis on using object-level methods as functions. We create an object with at least one method, and treat the method as an object in it's own right. We then call the method as a function, without any reference to the container object, however the method can still access the container object's members.

@@ -1,7 +1,7 @@
 %\VignetteIndexEntry{oosp2_Encapsulated_Classes_in_R}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.2.0}
+\lfoot{oosp 0.2.3}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -14,7 +14,7 @@ par(mar=c(5.1, 4.1, 1.1, 2.1))))
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.2.2)}{Encapsulated Classes in R\\[0.125cm] (Rough Draft) }
+\mtitleb {Object Oriented Statistical Programming (oosp 0.2.3)}{Encapsulated Classes in R\\[0.125cm] (Rough Draft) }
 
 \begin {abstract}
 A new class/object system for R is introduced, that is highly encapsulation based, as well as using an object reference system. A class definition has it's methods inside the the body of the definition. Object's can use self-reference to allow methods to access other members.
