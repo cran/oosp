@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{oosp1_Working_with_Environments}
+%\VignetteIndexEntry{oosp1_Enhanced_S3_Programming}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.2.3}
+\lfoot{oosp 0.3.1}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -16,10 +16,10 @@ options(continue=" ")
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.2.3)}{Working with Environments\\[0.125cm] (Draft)}
+\mtitleb {Object Oriented Statistical Programming (oosp 0.3.1)}{Enhanced S3 Programming\\[0.125cm] (Rough Draft)}
 
 \begin {abstract}
-This vignette provides a basic introduction to working with R environments (that is, environment objects, not the R environment), with special emphasis on using environments as components in standard R programs.
+This vignette introduces the oosp package, with a special emphasis on enhanced S3 programming.
 \end {abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -27,353 +27,93 @@ This vignette provides a basic introduction to working with R environments (that
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \msec {Introduction}
 
-Environments are very important and very powerful objects in R. However, at the time of writing this vignette, the author is not aware of any introductions per se, on how to write programs using environments. The standard R documentation is perhaps the most useful:
+There are a number of class and object systems available for R, however the one that is by far the most prevalent is S3. Maybe because it's been around for a while, or maybe because it's simple... However, S3 (at least the kind of S3 we usually see) does impose a number of restrictions on R programmers. One of the key goals of the oosp package, is to support an enhanced kind of S3 programming and give R programmers all the flexibility that they never needed, and more...
+
+Perhaps the biggest problem with S3, is for R package developers, who (if they don't what they're doing, and I've been hit by this too...) is R Check complaining about S3 methods that haven't been implemented properly, forcing one (at the R Check stage) to re-write functions and documentation. Let's say we have an object called point, with attributes x and y. Then let's say we wish to create a print method print.point (p), then the problem hits us...
+
+This vignette looks at an alternative solution to the problem above, as well as considering some issues related to inheritance in S3. Other vignettes in this package consider other issues related to object oriented programming with S3.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Mask Functions}
+
+Let's consider the example above in more detail. We can create the class very easily, and at face value we can also create a print method very easily. Then creating and printing the object is trivial...
+<<>>=
+#a possible class definition
+point = function (x, y) structure (list (x=x, y=y), class="point")
+@
+
+<<>>=
+#a possible print method
+print.point = function (p) cat ("x:", p$x, "\ny:", p$y, "\n")
+@
+
+<<>>=
+p = point (0, 0)
+p
+@
+
+\noindent At face value, if works fine. However, let's try and make a package...
+\begin{Schunk}
+\begin{Sinput}
+> R CMD check My1stRPackage
+\end{Sinput}
+\begin{Serror}
+* checking S3 generic/method consistency ... WARNING
+print:
+  function(x, ...)
+print.point:
+  function(p)
+\end{Serror}
+\end{Schunk}
+
+\noindent After a few changes...
+<<>>=
+#another possible print method
+print.point = function (x, ...) cat ("x:", x$x, "\ny:", x$y, "\n")
+@
+
+\noindent Now, R Check is content, however I don't want to call my object x, I want to call p. So the oosp package implements mask functions, that ``mask'' a subset of the standard generics. In principle, we should still include the dots argument, however otherwise we can use what ever arguments we want.
+
+Currently (these may change) the oosp package masks print, format, summary, plot, lines, predict, fitted, residuals, weights, as.list, as.data.frame and mean.
+
+Now, if we load oosp, we can use p instead of x, and R Check is still content.
+<<>>=
+#another possible print method
+print.point = function (p, ...) cat ("x:", p$x, "\ny:", p$y, "\n")
+@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\msec {Extending Objects}
+
+A major concept in object oriented programming is inheritance. In S3, we don't really extend classes, we extend objects, however this really just an implementation issue (so we are going to pretend that we do extend classes).
+
+The standard way of defining a class, is to set the class attribute, which we did earlier for our point class. For the case of inheritance, our class attribute is a character vector. So lets say we had a constructor for a circle class, that extended point, we might include a line such as:
 <<eval=false>>=
-?environment
-?sys.call
+class (obj) = c ("circle", "point")
 @
 
-\noindent Environments are really easy to use, and the R interpreter handles environment identifiers like object references, making certain programs workable, that would otherwise not be workable.
-
-The vignette starts off looking at the fundamentals of environments, then considers the differences between lists and environments. It considers extending environments, mainly with compenv objects from the oosp package. It also looks at a simple example of implementing a binary tree, using environments.
-
-Furthermore, environments can be hashed. However, this topic is not covered here. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Fundamentals}
-
-Perhaps the most important environment is the global environment. Using it is somewhat trivial. Here we create the name ``x'' and assign the value 1 to it. 
-<<>>=
-x = 1
-x
-@
-
-\noindent We can achieve the same thing using the following (noting that whilst we are using an environment, the syntax is similar to lists):
-<<>>=
-.GlobalEnv$x = 1
-x
-@
-
-\noindent Yet another way of doing it, is by using the assign and get functions (noting there is an exists function too).
-<<>>=
-assign ("x", 1, .GlobalEnv)
-get ("x", .GlobalEnv)
-@
-
-\noindent We can create our own environment very easily, using the function new.env:
-<<>>=
-e = new.env ()
-@
-
-\noindent Plus manipulate it, in the same way as the global environment above:
-<<>>=
-e$x = 1
-e$x
-@
-
-\noindent However, printing the environment is not always that informative:
-<<>>=
-e
-@
-
-\noindent After we assign values to the environment, we can get simple information using the length, ls and ls.str functions. A further option is as.list. Noting that the order of the output is not necessarily the order we expect:
-<<>>=
-e$y = 1:10
-e$z = "Something"
-length (e)
-ls (e)
-ls.str (e)
-as.list (e)
-@
-
-\noindent Environments are also used to evaluate calls (to functions). There is a stack of environments (also called frames). For each function call, an environment is created and pushed onto the stack. In general this should be left alone, however just to illustrate:
-<<>>=
-recursive.function = function (n)
-{	frame.number = sys.nframe ()
-	current.frame = format (sys.frame (frame.number) )
-	calling.frame = format (sys.frame (-1) )
-	print (data.frame (n, frame.number, current.frame, calling.frame),
-		row.names=FALSE)
-	if (n > 1)
-	{	cat ("\n")
-		recursive.function (n - 1)
-	}
-}
-recursive.function (3)
-@
-
-\noindent The function above simply calls itself a certain number of times. In the output above, the current.frame is obviously the frame that is used within that function call, the calling.frame is the frame where the call was made.
-
-Lists and environments have much in common, however there are important differences. Some of which are discussed in the next section. However the most important difference we will mention now. The R interpreter handles environment identifiers as object references. We could use the word ``name'' rather than word ``identifier'', as name matches the R language more closely, however the word name is somewhat ambiguous in this context, so for clarity we shall use identifier.
-
-There are many important implications to having object references, the full scope of which is beyond this vignette. Hopefully the reader is already familiar with the notion of an object reference, however if not, here is a taste. In the following example we create four environments. At face value, we assign a value x to environment e1.
-<<>>=
-e1 = e2 = e3 = e4 = new.env ()
-e1$x = "environment e1's x value"
-e1$x
-@
-
-\noindent However inspection of the other environments yields the following:
-<<>>=
-e2$x
-e3$x
-e4$x
-@
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Lists vs Environments}
-
-We have already mentioned that R treats environment identifiers as object references, however that is not the only difference between lists and environments. In general lists are more user-friendly, at least compared to standard environments. Say we wish to create an object, with three components, x, y and z. This is slightly easier with lists than environments.
-<<>>=
-obj1 = list (x=1, y=2, z=3)
-obj2 = new.env ()
-obj2$x = 1
-obj2$y = 2
-obj2$z = 3
-@
-
-\noindent Another problem is what happens when we want make copies of the objects themselves (not the reference). For lists this is trivial:
-<<>>=
-obj1.copy = obj1
-@
-
-\noindent However for environments more work is required.
-<<>>=
-obj2.copy = new.env ()
-obj2.copy$x = obj2$x
-obj2.copy$y = obj2$y
-obj2.copy$z = obj2$z
-@
-
-\noindent For an environment with many values, we could try and be clever:
-<<>>=
-obj2.copy = new.env ()
-names = ls (obj2)
-for (name in names) assign (name, get (name, obj2), obj2.copy)
-ls.str (obj2.copy)
-@
-
-\noindent There are two traps here. Firstly, when calling ls, we may need to set all.names=TRUE. Secondly, it is possible for environments to contain references to other environments, and in order to copy the whole thing may require a reasonable amount of work. However a much simpler solution is provided in the next section.
-
-A number of common tasks (perhaps things we take for granted with lists) will not work with environments.
-<<echo=false, eval=false>>=
-e = f = new.env ()
-print (try (e == f) )
-print (try (for (obj in e) print (obj) ) )
-print (try (is.na (e) ) )
-print (try (e [[1]]) )
-@
-\begin{Schunk}
-\begin{Sinput}
-> e = f = new.env ()
-> e == f
-\end{Sinput}
-\begin{Serror}
-Error in e == f :
-comparison (1) is possible only for atomic and list types
-\end{Serror}
-\begin{Sinput}
-> for (obj in e) print (obj)
-\end{Sinput}
-\begin{Serror}
-Error in for (obj in e) print(obj) :
-invalid type/length (environment/1) in vector allocation
-\end{Serror}
-\begin{Sinput}
-> is.na (e)
-\end{Sinput}
-\begin{Soutput}
-logical(0)
-\end{Soutput}
-\begin{Serror}
-Warning message:
-In is.na(e) : is.na() applied to non-(list or vector) of type 'environment'
-\end{Serror}
-\begin{Sinput}
-> e [[1]]
-\end{Sinput}
-\begin{Serror}
-Error in e[[1]] : wrong arguments for subsetting an environment
-\end{Serror}
-\end{Schunk}
-
-\noindent Now whilst lists are more user-friendly, environments offer substantial performance gains. Roughly speaking, when R calls a function, it copies each argument. This isn't completely true, however we are still using a copy-by-value system. Environments allow a copy-by-reference system, which is potentially much faster.
-
-In the following example, we create two large objects, that are essentially the same, except that one is based on a list, and the other is based on an environment. We also create two functions, to modify each of the objects, which again are essentially the same.
+\noindent That's OK so far. However, lets say we defined another class, called discretecircle, that extends circle. We could include the following line in our constructor:
 <<eval=false>>=
-obj1 = list ()
-obj2 = new.env ()
-for (i in 1:100)
-{	obj1 [[i]] = 1:1000
-	assign (as.character (i), 1:1000, obj2)
-}
-f1 = function (obj) {obj [[1]] = rnorm (1); obj}
-f2 = function (obj) {obj$`1` = rnorm (1); obj}
+class (obj) = c ("discretecircle", "circle", "point")
 @
 
-\noindent For each object we apply the corresponding function 1000 times and record the total time. This isn't the best experimental design, as there are other factors which effect the performance, however the result is reasonably clear, with the environment based example performing much better.
-<<echo=false, eval=false>>=
-#list example
-start = Sys.time ()
-for (i in 1:1000) obj1 = f1 (obj1)
-finish = Sys.time ()
-finish - start
-@
-\begin{Schunk}
-\begin{Sinput}
-> #list example
-> start = Sys.time ()
-> for (i in 1:1000) obj1 = f1 (obj1)
-> finish = Sys.time ()
-> finish - start
-\end{Sinput}
-\begin{Soutput}
-Time difference of 1.366078 secs
-\end{Soutput}
-\end{Schunk}
+\noindent However, we have two problems (not big problems, however still problems). Firstly, this is verbose. For more classes, becomes more verbose. Secondly, if we decide to rename point as pos, then not only do we have to change the point and circle, constructors, we also have to change the discretecircle constructor as well, and again for more class, becomes troublesome.
 
-<<echo=false, eval=false>>=
-#environment example
-start = Sys.time ()
-for (i in 1:1000) obj2 = f2 (obj2)
-finish = Sys.time ()
-finish - start
-@
-\begin{Schunk}
-\begin{Sinput}
-> #environment example
-> start = Sys.time ()
-> for (i in 1:1000) obj2 = f2 (obj2)
-> finish = Sys.time ()
-> finish - start
-\end{Sinput}
-\begin{Soutput}
-Time difference of 0.04305983 secs
-\end{Soutput}
-\end{Schunk}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Extending and Enhancing Environments}
-
-Extending environments is relatively simple, however it doesn't seem to be common practice. One reason we might want to extend an environment is to write our own print method.
-<<>>=
-e = structure (new.env (), class="myenv")
-print.myenv = function (e) print ("a myenv object")
-e
+If we assume that the superclass constructor is called before modifying the class attribute, then we can kind of solve these problems with something like:
+<<eval=false>>=
+class (obj) = c ("discretecircle", class (obj) )
 @
 
-\noindent The example above sets the class attribute to ``myenv''. The oosp package provides the function extend, which takes an object, appends a value to the beginning of it's class attribute, and returns the object. Hence, an alternative to above would be:
-<<>>=
-e = extend (new.env (), "myenv")
-class (e)
-@ 
-
-\noindent The oosp package, also provides compenv (component environments) objects, that extend environments. These provide workarounds to some of the limitations of standard environments. Furthermore, compenv objects can be extended. The first problem that was noted using environments was that creating an environment required separate calls, for each assignment. Using compenv objects we can create environments in a similar way to lists. Presently, compenv objects, print themselves, by calling as.list, however it is not recursive (so nested environments print the usual way).
-<<>>=
-e = compenv (x=1, y=2, z=3)
-e
+\noindent This is OK, however to make our life easier, the oosp package implements the function extend (which is nothing fancy). It takes an object, extends the class attribute, and returns the object). So the above line could be written as:
+<<eval=false>>=
+obj = extend (obj, "discretecircle")
 @
 
-\noindent We can compare two compenv objects for equality:
-<<>>=
-e = f = compenv ()
-g = compenv ()
-e == f
-e == g
-@
-
-\noindent We can also clone the compenv object. This will account for other environments, even if there are circular references.
-<<>>=
-e = compenv ()
-f = compenv ()
-e$f = f
-f$e = e
-e == e$f$e
-@
-
-<<>>=
-g = clone (e)
-e == g
-e$f == g$f
-g == g$f$e
-@
-
-\noindent Extending compenv objects is trivial:
-<<>>=
-e = extend (compenv (), "myenv2")
-@
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Section
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\msec {Binary Trees}
-In this section we create and traverse a binary tree, using environments. Whilst the benefits of using environments are relatively small here, this example is relatively simple, plus for more complex graphs, such as large cyclic graphics, we really need object references, otherwise the implementation becomes difficult.
-
-Lets say we have the following binary tree:
-\begin {center}
-<<fig=true, echo=false, width=6.5, height=3.5>>=
-plot.new ()
-par (mar=c (0, 0, 0, 0) )
-plot.window (xlim=c (0.5, 7), ylim=c (4, 0.5), xaxs="i", yaxs="i")
-v = 0:6
-x = c (3.625, 2, 5.25, 1, 3, 4.25, 6.25)
-y = c (1, 2.25,  2.25, 3.5, 3.5, 3.5, 3.5)
-s1 = c (1, 1, 2, 2, 3, 3)
-s2 = c (2, 3, 4, 5, 6, 7)
-segments (x [s1], y [s1], x [s2], y [s2])
-plotnode = function (x, y)
-{	x1 = x - 0.225
-	x2 = x + 0.225
-	y1 = y - 0.225
-	y2 = y + 0.225
-	rect (x1, y1, x2, y2, col="grey92")
-}
-for (i in 1:7) plotnode (x [i], y [i])
-text (x, y, v)
-@
-\end {center}
-
-\noindent We can create the tree, by defining (informally) a node class. The example allows specification of a parent node (this isn't completely necessary).
-<<>>=
-node = function (value, parent=NULL, child0=NULL, child1=NULL)
-{	node = extend (compenv (value, child0, child1), "node")
-	if (!is.null (parent) )	
-	{	if (is.null (parent$child0) ) parent$child0 = node
-		else if (is.null (parent$child1) ) parent$child1 = node
-		else stop ("parent already has two children")
-	}
-	node
-}
-print.node = function (node, ...) cat (node$value, "\n")
-@
-
-\noindent Now creating the tree:
-<<>>=
-node0 = node (0)
-node0.0 = node (1, node0)
-node0.1 = node (2, node0)
-node0.0.0 = node (3, node0.0)
-node0.0.1 = node (4, node0.0)
-node0.1.0 = node (5, node0.1)
-node0.1.1 = node (6, node0.1)
-@
-
-\noindent We can write a very simple traversal algorithm:
-<<>>=
-preorder = function (node)
-{	print (node)
-	if (!is.null (node$child0) ) preorder (node$child0)
-	if (!is.null (node$child1) ) preorder (node$child1)	
-}
-preorder (node0)
-@
+\noindent Which (in my opinion), is much nicer. Note that if this is the last line of the constructor, the assignment can be omitted (likewise, the other examples can be written using the structure function, as in the point example).
 
 \end{document}
 

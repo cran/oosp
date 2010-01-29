@@ -15,8 +15,8 @@ iter (n, min=1)
 itobj (obj)
 }
 \arguments{
-\item{obj}{}
-\item{n}{}
-\item{min}{}
+\item{obj}{.}
+\item{n}{.}
+\item{min}{.}
 }
 

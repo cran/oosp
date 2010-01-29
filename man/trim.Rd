@@ -8,6 +8,7 @@ trim (x)
 trim.scalar (x)
 }
 \arguments{
-\item{x}{}
+\item{x}{.}
 }
+
 

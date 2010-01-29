@@ -15,7 +15,6 @@ as.compenv = function (obj)
 }
 
 "==.compenv" = function (e1, e2) (format (e1) == format (e2) )
-is.hashed = function (e) attr (e, "hash")
 
 print.compenv = function (e, ...)
 {	obj = as.list (e)
@@ -39,8 +38,6 @@ list.to.compenv = function (obj, hash=FALSE)
 clone.compenv = function (e, ...)
 	structure (as.compenv (compenv.clone (e, ...) ), hash=is.hashed (e) )
 
-clone.environment = function (e, ...) compenv.clone (e, ...)
-
 compenv.clone = function (e, flags=pointer (list () ) )
 {	f = new.env ()
 	flags [[length (flags) + 1]] = list (e, f)
@@ -59,4 +56,5 @@ compenv.clone = function (e, flags=pointer (list () ) )
 	}
 	f
 }
+
 

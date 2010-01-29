@@ -1,13 +1,24 @@
-\name{function}
-\alias{mutate.function}
-\title{change the body of a function}
-\description{The mutate.function method changes the body of a function. The str argument is a character vector, representing the lines of the new function.}
+\name{FUNCTION}
+\alias{FUNCTION}
+\alias{print.FUNCTION}
+\alias{$.FUNCTION}
+\alias{$<-.FUNCTION}
+\title{Enhanced Functions}
+\description{Enhanced function objects, refer to the relevant package vignette for more information.}
 \usage{
-\method{mutate}{function}(f, str, \dots)
+FUNCTION (f, \dots, self.reference=".")
+\method{print}{FUNCTION}(f, \dots)
+\method{$}{FUNCTION}(x, name)
+\method{$}{FUNCTION}(x, name) <- value
 }
 \arguments{
-\item{f}{}
-\item{str}{}
-\item{\dots}{}
+\item{f}{A function.}
+\item{x}{A function.}
+\item{self.reference}{The self reference operator.}
+\item{name}{.}
+\item{value}{.}
+\item{\dots}{.}
 }
+
+
 

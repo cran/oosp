@@ -6,7 +6,7 @@
 \method{as.r}{default}(x, \dots)
 }
 \arguments{
-\item{x}{}
-\item{\dots}{}
+\item{x}{.}
+\item{\dots}{.}
 }
 

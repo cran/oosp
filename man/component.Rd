@@ -8,6 +8,6 @@ is.component (obj)
 as.component (obj)
 }
 \arguments{
-\item{obj}{}
+\item{obj}{.}
 }
 

@@ -6,6 +6,6 @@
 preview (d)
 }
 \arguments{
-\item{d}{}
+\item{d}{.}
 }
 

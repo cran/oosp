@@ -8,6 +8,6 @@ is.object (obj)
 as.object (obj)
 }
 \arguments{
-\item{obj}{}
+\item{obj}{.}
 }
 
