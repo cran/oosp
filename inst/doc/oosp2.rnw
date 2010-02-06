@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{oosp2_Introduction_to_Environments_and_Enhanced_Environment-Based_Objects}
+%\VignetteIndexEntry{oosp2_Environment-Based_Programming}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.3.1}
+\lfoot{oosp 0.3.2}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -16,7 +16,7 @@ options(continue=" ")
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.3.1)}{Environment-Based Programming (Draft)}
+\mtitleb {Object Oriented Statistical Programming (oosp 0.3.2)}{Environment-Based Programming (Draft)}
 
 \begin {abstract}
 This vignette provides a basic introduction to working with R environments (that is, environment objects, not the R environment), with special emphasis on using environments as components in standard R programs.
