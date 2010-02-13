@@ -1,7 +1,7 @@
 %\VignetteIndexEntry{oosp1_Enhanced_S3_Programming}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.3.2}
+\lfoot{oosp 0.3.3}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -16,7 +16,7 @@ options(continue=" ")
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.3.2)}{Enhanced S3 Programming\\[0.125cm] (Rough Draft)}
+\mtitleb {Object Oriented Statistical Programming (oosp 0.3.3)}{Enhanced S3 Programming\\[0.125cm] (Rough Draft)}
 
 \begin {abstract}
 This vignette introduces the oosp package, with a special emphasis on enhanced S3 programming.

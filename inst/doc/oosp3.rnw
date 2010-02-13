@@ -1,7 +1,7 @@
 %\VignetteIndexEntry{oosp3_Object-Functional_Programming}
 \documentclass {article}
 \usepackage {maia}
-\lfoot{oosp 0.3.2}
+\lfoot{oosp 0.3.3}
 \SweaveOpts{keep.source=TRUE}
 \SweaveOpts{prefix.string=tmp}
 
@@ -14,7 +14,7 @@ par(mar=c(5.1, 4.1, 1.1, 2.1))))
 library (oosp, warn=FALSE)
 @
 
-\mtitleb {Object Oriented Statistical Programming (oosp 0.3.2)}{Object-Functional Programming (Draft)}
+\mtitleb {Object Oriented Statistical Programming (oosp 0.3.3)}{Object-Functional Programming (Draft)}
 
 \begin {abstract}
 This vignette looks at combining the programming paradigms of object oriented programming and functional programming, arguably with a slightly stronger object oriented (rather than functional) flavour. There is a very strong emphasis on (1) enhanced functions (as objects), where functions can have self-references and attributes; and (2) supporting a diverse range of function-valued functions.
